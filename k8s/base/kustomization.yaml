@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - kubernetes.yaml
+
+# Common annotations
+commonAnnotations:
+  managed-by: kustomize
+labels:
+  - includeSelectors: false
+    pairs:
+      app: fast-food-api
+      version: v1

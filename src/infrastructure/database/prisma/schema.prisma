@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id    String  @id @default(uuid())
+  name  String
+  email String  @unique
+  cpf   String  @unique
+  phone String?
+
+  // Relations
+  orders Order[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customers")
+}
+
+model Category {
+  id          String @id @default(uuid())
+  name        String
+  description String
+
+  // Relations
+  products Product[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  categoryId  String
+  imageUrl    String?
+  isAvailable Boolean @default(true)
+  stock       Int     @default(100) // Initial stock, can be changed in seed
+
+  // Relations
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  customerId        String?
+  status            OrderStatus @default(PENDING)
+  paymentStatus     String      @default("pending")
+  totalAmount       Float
+  paymentProviderId String? // Mercado Pago payment_id
+  orderNumber       Int? // Número sequencial do pedido por dia
+
+  // Relations
+  customer   Customer?   @relation(fields: [customerId], references: [id])
+  orderItems OrderItem[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+  observation String?
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PAYMENT_CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}

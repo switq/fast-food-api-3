@@ -1,0 +1,252 @@
+{
+  "info": {
+    "_postman_id": "mp-monitoring-collection",
+    "name": "Mercado Pago - Monitoring & Logs",
+    "description": "Collection para monitorar webhooks, pagamentos e logs do Mercado Pago",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{MERCADO_PAGO_ACCESS_TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://api.mercadopago.com",
+      "type": "string"
+    },
+    {
+      "key": "MERCADO_PAGO_ACCESS_TOKEN",
+      "value": "APP_USR-481154220298864-071214-f04f0cb89e2e36dba909f6b995e3d17e-2540004647",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "📊 Webhook Monitoring (Via Painel Web)",
+      "item": [
+        {
+          "name": "ℹ️ Como Acessar Logs de Webhook",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://www.mercadopago.com.br/developers/panel",
+              "protocol": "https",
+              "host": ["www", "mercadopago", "com", "br"],
+              "path": ["developers", "panel"]
+            },
+            "description": "⚠️ IMPORTANTE: Os logs de webhook só estão disponíveis no painel web do Mercado Pago.\n\n📍 Como acessar:\n1. Acesse: https://www.mercadopago.com.br/developers/panel\n2. Vá em: Suas integrações → [Sua Aplicação] → Webhooks → Logs\n3. Lá você verá:\n   - Status das chamadas (200, 404, 500)\n   - Payload enviado\n   - Resposta recebida\n   - Número de tentativas\n   - Timestamps\n\n🔍 Alternativas para monitoramento:\n- Use ngrok inspector (http://localhost:4040)\n- Monitore logs da sua aplicação\n- Use as APIs de pagamento para rastrear status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💳 Payment Monitoring",
+      "item": [
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/v1/payments/{{payment_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["v1", "payments", "{{payment_id}}"]
+            },
+            "description": "Consulta detalhes de um pagamento específico"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/v1/payments/search?external_reference={{order_id}}&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["v1", "payments", "search"],
+              "query": [
+                {
+                  "key": "external_reference",
+                  "value": "{{order_id}}",
+                  "description": "ID do pedido (external_reference)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Número de resultados"
+                },
+                {
+                  "key": "status",
+                  "value": "approved",
+                  "description": "Status do pagamento",
+                  "disabled": true
+                },
+                {
+                  "key": "begin_date",
+                  "value": "2025-07-22T00:00:00Z",
+                  "description": "Data inicial",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-07-22T23:59:59Z",
+                  "description": "Data final",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Busca pagamentos por critérios específicos"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏪 Preference Monitoring",
+      "item": [
+        {
+          "name": "Get Preference by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/checkout/preferences/{{preference_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["checkout", "preferences", "{{preference_id}}"]
+            },
+            "description": "Consulta detalhes de uma preferência específica"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔧 Testing & Debug",
+      "item": [
+        {
+          "name": "Test Local Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"id\": \"{{payment_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/paymentwebhook",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "paymentwebhook"]
+            },
+            "description": "Testa o webhook dedicado simulando uma notificação do Mercado Pago"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment Status (Local API)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/payments/order/{{order_id}}/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "payments", "order", "{{order_id}}", "status"]
+            },
+            "description": "Consulta o status de pagamento de um pedido na API local"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📈 Analytics & Reports",
+      "item": [
+        {
+          "name": "Get Account Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/users/me",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "me"]
+            },
+            "description": "Informações da conta do Mercado Pago"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment Methods",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/v1/payment_methods",
+              "host": ["{{BASE_URL}}"],
+              "path": ["v1", "payment_methods"]
+            },
+            "description": "Lista métodos de pagamento disponíveis"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set current date for date filters",
+          "const now = new Date();",
+          "const today = now.toISOString().split('T')[0];",
+          "pm.collectionVariables.set('current_date', today);"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: fast-food-api
+
+resources:
+  - ../../base
+
+# Local development configurations
+configMapGenerator:
+  - name: fast-food-api-config
+    literals:
+      - NODE_ENV=development
+      - PORT=3000
+      - LOG_LEVEL=debug
+      - CORS_ORIGIN=http://localhost:3000
+      - DATABASE_HOST=postgres-service
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=fastfood
+      - MERCADO_PAGO_WEBHOOK_URL=http://localhost:3000/webhooks/paymentwebhook
+
+# Local secrets
+secretGenerator:
+  - name: fast-food-api-secrets
+    literals:
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-service:5432/fastfood
+      - MERCADO_PAGO_ACCESS_TOKEN=your-local-dev-token
+      - MERCADO_PAGO_PUBLIC_KEY=your-local-dev-key

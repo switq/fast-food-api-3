@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2020"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@src/*": ["src/*"],
+      "@tests/*": ["tests/*"],
+      "@entities/*": ["src/domain/entities/*"],
+      "@repositories/*": ["src/domain/repositories/*"],
+      "@gateways/*": ["src/infrastructure/gateways/*"],
+      "@app-gateways/*": ["src/application/interfaces/gateways/*"],
+      "@infra-interfaces/*": ["src/infrastructure/interfaces/*"],
+      "@presenters/*": ["src/presentation/presenters/*"],
+      "@controllers/*": ["src/presentation/controllers/*"],
+      "@presentation-gateways/*": ["src/presentation/gateways/*"],
+      "@usecases/*": ["src/application/use-cases/*"]
+    },
+    "baseUrl": "./"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "tests", "dist", "coverage"]
+}

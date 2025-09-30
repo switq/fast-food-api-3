@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store 
+coverage/
+
+# Database backups (but not Prisma migrations)
+*backup*.sql
+dump_*.sql
+
