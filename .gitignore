@@ -9,3 +9,8 @@ coverage/
 *backup*.sql
 dump_*.sql
 
+# Documentation files for Fase 3 (not to be committed)
+README-FASE3.md
+ESTRUTURA_REPOSITORIOS_FASE3.md
+*FASE3*.md
+
