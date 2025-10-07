@@ -4,6 +4,8 @@ import OrderController from "@controllers/OrderController";
 import PaymentController from "@controllers/PaymentController";
 import OrderItem from "@entities/OrderItem";
 import { ProductGateway } from "@presentation-gateways/ProductGateway";
+import { authMiddleware } from "./authMiddleware";
+import { adminMiddleware } from "./adminMiddleware";
 
 /**
  * @openapi
@@ -12,7 +14,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *     tags: [Orders]
  *     summary: Lista todos os pedidos em andamento, ordenados por status e data
  *     responses:
- *       200:
+ *       "200":
  *         description: Lista de pedidos ordenada
  *         content:
  *           application/json:
@@ -20,15 +22,9 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro ao buscar pedidos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
+ *
  * /api/orders/status/{status}:
  *   get:
  *     tags: [Orders]
@@ -42,7 +38,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *           enum: [PENDING, CONFIRMED, PAYMENT_CONFIRMED, PREPARING, READY, DELIVERED, CANCELLED]
  *         description: Status dos pedidos a serem filtrados
  *     responses:
- *       200:
+ *       "200":
  *         description: Lista de pedidos com o status especificado
  *         content:
  *           application/json:
@@ -50,21 +46,15 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro ao buscar pedidos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
+ *
  * /api/orders:
  *   get:
  *     tags: [Orders]
  *     summary: Lista todos os pedidos
  *     responses:
- *       200:
+ *       "200":
  *         description: Lista de pedidos
  *         content:
  *           application/json:
@@ -72,15 +62,8 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro ao buscar pedidos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *   post:
  *     tags: [Orders]
  *     summary: Cria um novo pedido
@@ -101,21 +84,14 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                 type: string
  *                 example: 550e8400-e29b-41d4-a716-446655440000
  *     responses:
- *       201:
+ *       "201":
  *         description: Pedido criado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro na requisição
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *
  * /api/orders/{id}:
  *   get:
@@ -128,21 +104,14 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       "200":
  *         description: Pedido encontrado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
- *       404:
+ *       "404":
  *         description: Pedido não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *   delete:
  *     tags: [Orders]
  *     summary: Remove um pedido
@@ -153,7 +122,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       "200":
  *         description: Pedido removido com sucesso
  *         content:
  *           application/json:
@@ -163,15 +132,8 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                 message:
  *                   type: string
  *                   example: Order deleted successfully
- *       404:
+ *       "404":
  *         description: Pedido não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *
  * /api/orders/customer/{customerId}:
  *   get:
@@ -184,7 +146,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       "200":
  *         description: Lista de pedidos do cliente
  *         content:
  *           application/json:
@@ -192,15 +154,8 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro ao buscar pedidos do cliente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *
  * /api/orders/{id}/status:
  *   patch:
@@ -225,21 +180,14 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                 type: string
  *                 enum: [PENDING, CONFIRMED, PAYMENT_CONFIRMED, PREPARING, READY, DELIVERED, CANCELLED]
  *     responses:
- *       200:
+ *       "200":
  *         description: Status atualizado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro na atualização do status
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *
  * /api/orders/{id}/items:
  *   patch:
@@ -265,21 +213,14 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                 items:
  *                   $ref: '#/components/schemas/OrderItem'
  *     responses:
- *       200:
+ *       "200":
  *         description: Itens adicionados
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro ao adicionar itens
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *
  * /api/orders/{orderId}/items/{itemId}:
  *   patch:
@@ -309,21 +250,15 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                 type: integer
  *                 example: 2
  *     responses:
- *       200:
+ *       "200":
  *         description: Quantidade atualizada
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
- *       400:
+ *       "400":
  *         description: Erro ao atualizar quantidade
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
+ *
  * /api/orders/{orderId}/payment:
  *   post:
  *     tags: [Orders]
@@ -337,7 +272,8 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do pedido para o qual o pagamento será gerado *     requestBody:
+ *         description: ID do pedido para o qual o pagamento será gerado
+ *     requestBody:
  *       required: false
  *       content:
  *         application/json:
@@ -351,7 +287,7 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                   OPCIONAL - Atualmente ignorado. O cliente escolhe o método de pagamento
  *                   na interface do Mercado Pago. Mantido para compatibilidade futura.
  *     responses:
- *       200:
+ *       "200":
  *         description: Pagamento criado com sucesso
  *         content:
  *           application/json:
@@ -374,24 +310,10 @@ import { ProductGateway } from "@presentation-gateways/ProductGateway";
  *                   type: string
  *                   example: "iVBORw0KGgoAAAANSUhEUgAA..."
  *                   description: QR code em base64
- *       400:
+ *       "400":
  *         description: Erro ao gerar pagamento
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *       404:
+ *       "404":
  *         description: Pedido não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  *
  * components:
  *   schemas:
@@ -459,7 +381,8 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.get("/orders", async (req, res) => {
+  // Rotas protegidas por JWT (exemplo: administrativas e sensíveis)
+  router.get("/orders", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.getAllOrders(dbConnection);
       res.json(result);
@@ -468,7 +391,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.get("/orders/:id", async (req, res) => {
+  router.get("/orders/:id", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.getOrderById(
         req.params.id,
@@ -479,6 +402,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
       res.status(404).json({ error: (err as Error).message });
     }
   });
+
   router.post("/orders", async (req, res) => {
     try {
       const { items, customerId } = req.body;
@@ -526,7 +450,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status", async (req, res) => {
+  router.patch("/orders/:id/status", authMiddleware, async (req, res) => {
     try {
       const { status } = req.body;
       const result = await OrderController.updateOrderStatus(
@@ -540,7 +464,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status/confirmOrder", async (req, res) => {
+  router.patch("/orders/:id/status/confirmOrder", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.confirmOrder(
         req.params.id,
@@ -552,7 +476,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status/confirmPayment", async (req, res) => {
+  router.patch("/orders/:id/status/confirmPayment", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.confirmPayment(
         req.params.id,
@@ -564,7 +488,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status/startPreparing", async (req, res) => {
+  router.patch("/orders/:id/status/startPreparing", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.startPreparingOrder(
         req.params.id,
@@ -576,7 +500,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status/markReady", async (req, res) => {
+  router.patch("/orders/:id/status/markReady", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.markOrderAsReady(
         req.params.id,
@@ -588,7 +512,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status/markDelivered", async (req, res) => {
+  router.patch("/orders/:id/status/markDelivered", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.markOrderAsDelivered(
         req.params.id,
@@ -600,7 +524,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/status/cancel", async (req, res) => {
+  router.patch("/orders/:id/status/cancel", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.cancelOrder(
         req.params.id,
@@ -612,7 +536,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:id/items", async (req, res) => {
+  router.patch("/orders/:id/items", authMiddleware, async (req, res) => {
     try {
       const { items } = req.body;
       const result = await OrderController.addItemsToOrder(
@@ -626,7 +550,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.patch("/orders/:orderId/items/:itemId", async (req, res) => {
+  router.patch("/orders/:orderId/items/:itemId", authMiddleware, async (req, res) => {
     try {
       const { quantity } = req.body;
       const result = await OrderController.updateItemQuantity(
@@ -641,7 +565,7 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.delete("/orders/:id", async (req, res) => {
+  router.delete("/orders/:id", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.deleteOrderById(
         req.params.id,
@@ -668,6 +592,11 @@ export function setupOrderRoutes(dbConnection: IDatabaseConnection) {
         res.status(400).json({ error: (err as Error).message });
       }
     }
+  });
+
+  // Exemplo de rota administrativa protegida
+  router.get("/admin/orders", authMiddleware, adminMiddleware, async (req, res) => {
+    // ...lógica da rota administrativa...
   });
 
   return router;

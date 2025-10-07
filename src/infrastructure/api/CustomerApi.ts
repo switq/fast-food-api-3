@@ -1,6 +1,7 @@
 import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { Router } from "express";
 import CustomerController from "@controllers/CustomerController";
+import { authMiddleware } from "./authMiddleware";
 
 /**
  * @openapi
@@ -88,11 +89,12 @@ import CustomerController from "@controllers/CustomerController";
  *         required: true
  *         schema:
  *           type: string
- *     responses: *       200:
+ *     responses:
+ *       200:
  *         description: Cliente removido com sucesso
  *       404:
  *         description: Cliente não encontrado
- * * /customers/identify/{cpf}:
+ * /customers/identify/{cpf}:
  *   get:
  *     tags: [Customers]
  *     summary: Busca um cliente pelo CPF
@@ -152,14 +154,17 @@ import CustomerController from "@controllers/CustomerController";
 export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
 
-  router.get("/customers", async (req, res) => {
+  // Rotas protegidas por JWT (CRUD de clientes)
+  router.get("/customers", authMiddleware, async (req, res) => {
     try {
       const result = await CustomerController.getAllCustomers(dbConnection);
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
     }
-  }); // Endpoint para identificação do cliente por CPF - deve vir antes da rota /:id
+  });
+
+  // Endpoint de identificação por CPF pode ser público
   router.get("/customers/identify/:cpf", async (req, res) => {
     try {
       const result = await CustomerController.getCustomerByCPF(
@@ -172,7 +177,7 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.get("/customers/:id", async (req, res) => {
+  router.get("/customers/:id", authMiddleware, async (req, res) => {
     try {
       const result = await CustomerController.getCustomerById(
         req.params.id,
@@ -184,7 +189,7 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.post("/customers", async (req, res) => {
+  router.post("/customers", authMiddleware, async (req, res) => {
     try {
       const { name, email, cpf, phone } = req.body;
       const result = await CustomerController.createCustomer(
@@ -200,7 +205,7 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.put("/customers/:id", async (req, res) => {
+  router.put("/customers/:id", authMiddleware, async (req, res) => {
     try {
       const { name, email, cpf, phone } = req.body;
       const result = await CustomerController.updateCustomer(
@@ -217,7 +222,7 @@ export function setupCustomerRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.delete("/customers/:id", async (req, res) => {
+  router.delete("/customers/:id", authMiddleware, async (req, res) => {
     try {
       const result = await CustomerController.deleteCustomerById(
         req.params.id,

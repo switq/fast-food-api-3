@@ -2,6 +2,7 @@ import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { Router } from "express";
 import KitchenController from "@controllers/KitchenController";
 import OrderController from "@controllers/OrderController";
+import { authMiddleware } from "./authMiddleware";
 
 /**
  * @openapi
@@ -60,7 +61,8 @@ import OrderController from "@controllers/OrderController";
  *               type: object
  *               properties:
  *                 error:
- *                   type: string * /api/kitchen/orders/awaiting-preparation:
+ *                   type: string
+ * /api/kitchen/orders/awaiting-preparation:
  *   get:
  *     tags: [Kitchen]
  *     summary: Lista pedidos aguardando preparo
@@ -84,52 +86,6 @@ import OrderController from "@controllers/OrderController";
  *                   status:
  *                     type: string
  *                     enum: [PAYMENT_CONFIRMED]
- *                   items:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: string
- *                         productId:
- *                           type: string
- *                         productName:
- *                           type: string
- *                         quantity:
- *                           type: integer
- *                         observation:
- *                           type: string
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                   updatedAt:
- *                     type: string
- *                     format: date-time
- *       400:
- *         description: Erro ao buscar pedidos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *     responses:
- *       200:
- *         description: Lista de pedidos com status PAYMENT_CONFIRMED
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   orderNumber:
- *                     type: number
- *                   status:
- *                     type: string
  *                   items:
  *                     type: array
  *                     items:
@@ -206,26 +162,26 @@ import OrderController from "@controllers/OrderController";
 export function setupKitchenRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
 
-  // Nova rota principal da cozinha - lista pedidos ordenados
-  router.get("/kitchen/orders", async (req, res) => {
+  // Rotas protegidas por JWT (acesso à cozinha)
+  router.get("/kitchen/orders", authMiddleware, async (req, res) => {
     try {
       const result = await OrderController.listSortedOrders(dbConnection);
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
     }
-  }); // Rota específica - pedidos aguardando preparo
-  router.get("/kitchen/orders/awaiting-preparation", async (req, res) => {
+  });
+
+  router.get("/kitchen/orders/awaiting-preparation", authMiddleware, async (req, res) => {
     try {
-      const result =
-        await KitchenController.getPaymentConfirmedOrders(dbConnection);
+      const result = await KitchenController.getPaymentConfirmedOrders(dbConnection);
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: (err as Error).message });
     }
   });
 
-  router.patch("/kitchen/orders/:id/status", async (req, res) => {
+  router.patch("/kitchen/orders/:id/status", authMiddleware, async (req, res) => {
     try {
       const { status } = req.body;
       const result = await KitchenController.updateOrderStatus(

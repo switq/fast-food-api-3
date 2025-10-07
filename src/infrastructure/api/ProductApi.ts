@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import ProductController from "@controllers/ProductController";
+import { authMiddleware } from "./authMiddleware";
 
 /**
  * @openapi
@@ -97,7 +98,8 @@ import ProductController from "@controllers/ProductController";
 export function setupProductRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
 
-  router.get("/products", async (req, res) => {
+  // Rotas protegidas por JWT (CRUD de produtos)
+  router.get("/products", authMiddleware, async (req, res) => {
     try {
       const result = await ProductController.getAllProducts(dbConnection);
       res.json(result);
@@ -106,7 +108,7 @@ export function setupProductRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.get("/products/:id", async (req, res) => {
+  router.get("/products/:id", authMiddleware, async (req, res) => {
     try {
       const result = await ProductController.getProductById(
         req.params.id,
@@ -118,7 +120,7 @@ export function setupProductRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.post("/products", async (req, res) => {
+  router.post("/products", authMiddleware, async (req, res) => {
     try {
       const { name, description, price, categoryId, imageUrl } = req.body;
       const result = await ProductController.createProduct(
@@ -135,7 +137,7 @@ export function setupProductRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.put("/products/:id", async (req, res) => {
+  router.put("/products/:id", authMiddleware, async (req, res) => {
     try {
       const { name, description, price, categoryId, imageUrl, isAvailable } =
         req.body;
@@ -155,7 +157,7 @@ export function setupProductRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.delete("/products/:id", async (req, res) => {
+  router.delete("/products/:id", authMiddleware, async (req, res) => {
     try {
       const result = await ProductController.deleteProductById(
         req.params.id,
@@ -167,6 +169,7 @@ export function setupProductRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
+  // Rota de listagem por categoria pode ser pública, ajuste conforme política
   router.get("/category/:categoryId/products", async (req, res) => {
     try {
       const result = await ProductController.getProductsByCategory(

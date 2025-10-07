@@ -1,6 +1,7 @@
 import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { Router } from "express";
 import PaymentController from "@controllers/PaymentController";
+import { authMiddleware } from "./authMiddleware";
 
 /**
  * @openapi
@@ -30,7 +31,7 @@ import PaymentController from "@controllers/PaymentController";
 export function setupPaymentRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
 
-  router.get("/payments/order/:orderId/status", async (req, res) => {
+  router.get("/payments/order/:orderId/status", authMiddleware, async (req, res) => {
     try {
       const paymentStatus = await PaymentController.getPaymentStatus(
         req.params.orderId,

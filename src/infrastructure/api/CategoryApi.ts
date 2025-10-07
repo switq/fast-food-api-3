@@ -1,6 +1,7 @@
 import { IDatabaseConnection } from "@infra-interfaces/IDbConnection";
 import { Router } from "express";
 import CategoryController from "@controllers/CategoryController";
+import { authMiddleware } from "./authMiddleware";
 
 /**
  * @openapi
@@ -174,7 +175,8 @@ import CategoryController from "@controllers/CategoryController";
 export function setupCategoryRoutes(dbConnection: IDatabaseConnection) {
   const router = Router();
 
-  router.get("/categories", async (req, res) => {
+  // Rotas protegidas por JWT (CRUD de categorias)
+  router.get("/categories", authMiddleware, async (req, res) => {
     try {
       const result = await CategoryController.getAllCategories(dbConnection);
       res.json(result);
@@ -183,7 +185,7 @@ export function setupCategoryRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.get("/categories/:id", async (req, res) => {
+  router.get("/categories/:id", authMiddleware, async (req, res) => {
     try {
       const result = await CategoryController.getCategoryById(
         req.params.id,
@@ -195,7 +197,7 @@ export function setupCategoryRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.post("/categories", async (req, res) => {
+  router.post("/categories", authMiddleware, async (req, res) => {
     try {
       const { name, description } = req.body;
       const result = await CategoryController.createCategory(
@@ -209,7 +211,7 @@ export function setupCategoryRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.put("/categories/:id", async (req, res) => {
+  router.put("/categories/:id", authMiddleware, async (req, res) => {
     try {
       const { name, description } = req.body;
       const result = await CategoryController.updateCategory(
@@ -224,7 +226,7 @@ export function setupCategoryRoutes(dbConnection: IDatabaseConnection) {
     }
   });
 
-  router.delete("/categories/:id", async (req, res) => {
+  router.delete("/categories/:id", authMiddleware, async (req, res) => {
     try {
       const result = await CategoryController.deleteCategoryById(
         req.params.id,
